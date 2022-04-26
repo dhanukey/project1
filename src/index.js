@@ -7,18 +7,7 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use( function(req, res, next){
-  
-  console.log("hellooo middle ware active")
-  console.log()
 
-  var d = new Date();
-  var datetime = d.toLocaleString();console.log(datetime);
-  console.log(req.originalUrl)
-
-  console. log(req. socket. remoteAddress);
-  next()
-})
 
 
 

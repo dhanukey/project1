@@ -1,19 +1,25 @@
-const blogModel = require("../models/blogMOdel")
+const blogModel = require("../models/blogModel")
 const authorModel= require("../models/authorModel")
 
 const createblog= async function (req, res) {
     let dev= req.body
 
-    authorid = dev.authorid
+    authorid = dev.authorId
      
     const k = await authorModel.find({_id: authorid})
-    if(!k){
+
+    console.log(k)
+    if(k.length<=0){
        return res.status(400).send("please provide valid user")
     }
+    
+    if(req.body.isPublished == true){
+       console.log("heellooo")
+      dev.pubishedat= Date.now()
+    }
 
-
-    let blog = await blogModel.create(dev)
-    res.status(200).send({data: dev})
+    else{let blog = await blogModel.create(dev)
+    res.status(200).send({data: dev})}
 
 }
 
@@ -23,9 +29,9 @@ const createblog= async function (req, res) {
     let auth = req.query.authorId
     let cat=  req.query.category
     let tag= req.query.tag
-    
 
-    let stud = await blogModel.find({ $and: [{isDeleted: false}, {isPublished: true}]}).select({name:1})
+
+    let stud = await blogModel.find({ $and: [{isDeleted: false}, {isPublished: true}]}).select([auth, cat, tag])
     res.send({stud})
 
  }

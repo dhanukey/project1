@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
+require('mongoose-type-email')
 
-
-const programSchema = new mongoose.Schema( {
+const authorSchema = new mongoose.Schema( {
     
     fname:{
       type: String,
@@ -22,19 +22,21 @@ const programSchema = new mongoose.Schema( {
     },
     email:{
 
-        type: String,
+        type: mongoose.SchemaTypes.Email,
         required: [true, "Email required"],
         unique: true,
-        validate: {
-            validator: function(v) {
-                return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(v);
-            },
-            message: "Please enter a valid email"
-        },
+        
+
+        // validate: {
+        //     validator: function(v) {
+        //         return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(v);
+        //     },
+        //     message: "Please enter a valid email"
+        // },
     },
     password: {
         type:String,
         required: [true, "password required"]},
      } ,{timestamps: true });
 
-module.exports = mongoose.model('Author1', programSchema)
+module.exports = mongoose.model('Author', authorSchema)
