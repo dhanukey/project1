@@ -37,12 +37,16 @@ const blogSchema = new mongoose.Schema( {
         default: false,
      },
 
-     publishedAt:Date,
+     publishedAt:{
+      type: Date
+
+     },
 
 
      isPublished:{
         type: Boolean,
         default: false,
+   
      },
 
     authorId: {

@@ -10,17 +10,9 @@ const blogController= require("../controllers/blogController")
 
 router.post("/author", authorController.createAuthor)
 router.post("/blog", blogController.createblog)
+router.get("/blogs", blogController.getdata)
 
 
 
-//  router.post("/developers", devController.createDev)
-
-// // router.get("/getAuthorsData", authorController.getAuthorsData)
-
-// router.post("/batches", programController.createProgram)
-
-//  router.get("/scholarship-developers", devController.scholars)
-
-//  router.get("/developers", devController.getstudents)
 
  module.exports = router;
