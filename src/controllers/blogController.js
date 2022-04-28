@@ -58,9 +58,8 @@ const updateBlog = async function (req, res) {
           a.push(x[i].tags);
         }
         a.push(data.tags);
-       console.log(a)
         let b = a.flat()
-       console.log(b)
+       
         if (data.tags) {
           let updatedBlog = await blogModel.findOneAndUpdate(
             { _id: blogId },
@@ -94,9 +93,7 @@ const updateBlog = async function (req, res) {
           { $set: { title: req.body.title, body: req.body.body } },
           { new: true, upsert: true }
         );
-        return res
-          .status(200)
-          .send({ msg: "Blog Updated Successfully", updatedBlog });
+        return res.status(200).send({ msg: "Blog Updated Successfully", updatedBlog });
       } else {
         return res.status(404).send({ error: "Blog does not exists" });
       }
@@ -119,7 +116,7 @@ try{
      return res.status(404).send({msg: "no blog found with the id match"})
    }
  
-   let match= await blogModel.findOneAndUpdate({_id:id}, {$set: {isDeleted: true}})
+   let match= await blogModel.findOneAndUpdate({_id:id}, {$set: {isDeleted: true,deletedAt: Date.now()}},{ new: true, upsert: true })
    res.status(200).send(match)
 }
    catch (error) {
@@ -135,13 +132,13 @@ try{
     if (Object.keys(data) == 0)
       return res.status(400).send({ status: false, msg: "Input Missing" });
 
-    let deleted = await blogModel.updateMany(
-      { $and: [data, { isPublished: false }] },
-      { isDeleted: true, deletedAt: Date.now() },
-      { new: true }
-    );
+   let find= await blogModel.find(data)  
+   if (find.length<=0)
+   {
+     return res.status(404).send({msg: "no blog found with the id match"})
+   }
+    let deleted = await blogModel.updateMany({ $and:[data,{ isPublished: false }] },{isDeleted: true, deletedAt: Date.now()},{ new: true});
 
-      return res.status(404).send({ status: false, msg: "Blog Not Found" });
     return res.status(200).send({ status: true, data: deleted });
   } catch (error) {
     return res.status(500).send({ error: error.message });
