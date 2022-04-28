@@ -9,7 +9,7 @@ router.post("/author", authorController.createAuthor)
 router.post("/blog", blogController.createblog)
 router.get("/blogs", blogController.getdata)
 router.put("/blogs/:blogId", blogController.updateBlog)
-router.delete("/blogs", blogController.queryDeleted)
 router.delete("/blogs/:blogId", blogController.deletedata)
+router.delete("/blogs", blogController.queryDeleted)
 
  module.exports = router;

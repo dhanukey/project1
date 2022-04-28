@@ -9,13 +9,13 @@ try{
   authorid = data.authorId;
 
   const k = await authorModel.find({ _id: authorid });
-  console.log(k)
+  
   if (k.length <= 0) {
     return res.status(400).send("please provide valid user");
   }
 
   let blog = await blogModel.create(data);
-  res.status(200).send({ data: data });
+  res.status(201).send({ data: data });
  } catch (error) {
    return res.status(500).send({ error: error.message });
  }
@@ -29,7 +29,7 @@ try{
 
   let find = await blogModel.find({$and: [{ isDeleted: false }, { isPublished: true }, data]});
 
-  if (find.length <= 0) {return res.status(400).send({ error: "No match found for the given criteria" });}
+  if (find.length <= 0) {return res.status(404).send({ error: "No match found for the given criteria" });}
   res.status(200).send({data:find });
 
  }catch (error) {
@@ -129,10 +129,10 @@ try{
 
  //------------------------------------------------Solution 6 ------------------------------------------------------------------------
 
-const queryDeleted = async function (req, res) {
+ const queryDeleted = async function (req, res) {
   try {
     let data = req.query;
-    if (Object.keys(data) === 0)
+    if (Object.keys(data) == 0)
       return res.status(400).send({ status: false, msg: "Input Missing" });
 
     let deleted = await blogModel.updateMany(
@@ -141,7 +141,6 @@ const queryDeleted = async function (req, res) {
       { new: true }
     );
 
-    if (!deleted)
       return res.status(404).send({ status: false, msg: "Blog Not Found" });
     return res.status(200).send({ status: true, data: deleted });
   } catch (error) {
