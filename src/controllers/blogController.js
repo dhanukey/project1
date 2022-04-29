@@ -4,19 +4,21 @@ const authorModel = require("../models/authorModel");
 const jwt = require("jsonwebtoken");
 
 //------------------------------------------------Solution 2 ------------------------------------------------------------------------
+
 const createblog = async function (req, res) {
 try{
-  let data = req.body;
-  authorid = data.authorId;
 
-  const k = await authorModel.find({ _id: authorid });
+  let data = req.body;
   
-  if (k.length <= 0) {
+  let authorid = data.authorId;
+  const find = await authorModel.find({ _id: authorid });
+  
+  if (find.length <= 0) {
     return res.status(400).send("please provide valid user");
   }
 
-  let blog = await blogModel.create(data);
-  res.status(201).send({ data: data });
+  let blogCreated = await blogModel.create(data);
+  res.status(201).send({ data: blogCreated });
  } catch (error) {
    return res.status(500).send({ error: error.message });
  }
@@ -26,12 +28,19 @@ try{
 
 const getdata = async function (req, res) {
 try{
- let data = req.query;
 
-  let find = await blogModel.find({$and: [{ isDeleted: false }, { isPublished: true }, data]});
+  let data = req.query;
+  if ( Object.keys(data).length == 0){
+   return res.status(400).send({ msg: "Input Missing"})
+  }
 
-  if (find.length <= 0) {return res.status(404).send({ error: "No match found for the given criteria" });}
-  res.status(200).send({data:find });
+  let find = await blogModel.find({$and:[{ isDeleted: false },{ isPublished: true},data]});
+
+  if (find.length <= 0){
+    return res.status(404).send({ error: "No match found for the given criteria" });
+  }
+
+  res.status(200).send({data: find});
 
  }catch (error) {
    return res.status(500).send({ error: error.message });
@@ -42,7 +51,9 @@ try{
 
 const updateBlog = async function (req, res) {
   try {
+
     let data = req.body;
+
     let blogId = req.params.blogId;
 
     let id = await blogModel.findById(blogId);
@@ -52,6 +63,7 @@ const updateBlog = async function (req, res) {
         let x = await blogModel.find({ _id: blogId }).select({ tags: 1 });
 
         let a = [];
+        
         for (let i = 0; i < x.length; i++) {
           a.push(x[i].tags);
         }
@@ -106,10 +118,12 @@ const updateBlog = async function (req, res) {
 //------------------------------------------------Solution 5 ------------------------------------------------------------------------
 
 const deletedata = async function(req,res){
+
 try{
+  
    id= req.params.blogId
-   let match1= await blogModel.find({$and:[{_id:id}, {isDeleted: false}]})
-   if (match1.length<=0)
+   let find= await blogModel.find({$and:[{_id:id}, {isDeleted: false}]})
+   if (find.length<=0)
    {
      return res.status(404).send({msg: "no blog found with the id match"})
    }
@@ -126,22 +140,18 @@ try{
 
  const queryDeleted = async function (req, res) {
   try {
+    
     let data = req.query;
-    if (Object.keys(data) == 0)
-      return res.status(400).send({ status: false, msg: "Input Missing" });
+    let key=req.key[0].authorId
 
-   let find= await blogModel.find(data)  
-   if (find.length<=0)
-   {
-     return res.status(404).send({msg: "no blog found with the id match"})
-   }
-  
-   let deleted = await blogModel.updateMany(data,{isDeleted: true, deletedAt: Date.now()},{ new: true});
+   let deleted = await blogModel.updateMany({$and:[{authorId:key},data]},{isDeleted: true, deletedAt: Date.now()},{ new: true});
     return res.status(200).send({ status: true, data: deleted });
+ 
   } catch (error) {
     return res.status(500).send({ error: error.message });
   }
 };
+
 
 //------------------------------------------------Solution 7 ------------------------------------------------------------------------
 

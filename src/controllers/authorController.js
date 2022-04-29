@@ -4,10 +4,12 @@ const AuthorModel= require("../models/authorModel")
 
 const createAuthor= async function(req,res) {
 try{
-    let author = req.body
-    let authors = await AuthorModel.create(author)
-    res.status(201).send({data: authors})
- } catch (error) {
+    let data = req.body
+    
+    let author = await AuthorModel.create(data)
+    res.status(201).send({ data: author })
+  
+}catch (error) {
         return res.status(500).send({ error: error.message });
       }
 }

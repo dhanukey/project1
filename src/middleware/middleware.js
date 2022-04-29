@@ -1,4 +1,6 @@
 const jwt = require("jsonwebtoken");
+const authorModel = require("../models/authorModel");
+const blogModel = require("../models/blogModel");
 
 let authentication = async function (req, res, next) {
   try {
@@ -21,19 +23,43 @@ let authentication = async function (req, res, next) {
 };
 
 
+
+
 let authorisation = async function (req, res, next) {
   try {
 
     let decodedToken= req.dataFromauthentication
     
-    let userToBeModified = req.params.userId;
-    let userLoggedIn = decodedToken.userId;
+    let blogid = req.params.blogId;
+    if(blogid){
+      let authorid = await blogModel.find({_id:blogid}).select({authorId:1})
+      if(authorid.length<=0){
+        return res.status(403).send({status: false,msg: "Incorrect blogid"});
+      }
+      let userLoggedIn = decodedToken.authorId;
+      if (authorid[0].authorId != userLoggedIn){
+        return res.status(403).send({status: false,msg: "You are not Authorised"});
+      } 
+    } else{
+      let data= req.query;
 
-    if (userToBeModified != userLoggedIn)
+      if (Object.keys(data) == 0) {
+        return res.status(400).send({ status: false, msg: "Input Missing" });
+      }
+      let find= await blogModel.find(data)  
+      if (find.length<=0)
+      {
+        return res.status(404).send({msg: "no blog found with the id match"})
+      }
+      let validation= decodedToken.authorId
+      let loginAuthorid = await blogModel.find({$and:[data,{validation}]}).select({authorId:1})
+      if(loginAuthorid<=0){
+        return res.status(403).send({status: false,msg: "You are not Authorised"});
+      }
+      req.key=loginAuthorid;
+    }
 
-    return res.status(403).send({status: false,msg: "User logged is not allowed to modify the requested users data",});
-    else next();
-
+    next();
   } catch (err) {
     res.status(500).send({ msg: "Error", error: err.message });
   }
