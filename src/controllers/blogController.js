@@ -1,6 +1,7 @@
 const {count} = require("console")
 const blogModel = require("../models/blogModel");
 const authorModel = require("../models/authorModel");
+const jwt = require("jsonwebtoken");
 
 //------------------------------------------------Solution 2 ------------------------------------------------------------------------
 const createblog = async function (req, res) {
@@ -47,10 +48,7 @@ const updateBlog = async function (req, res) {
     let id = await blogModel.findById(blogId);
     if (id) {
       if (id.isDeleted === false) {
-        if (id.isPublished === true) {
-          let updatedDate = await blogModel.findOneAndUpdate({ _id: blogId },{ $set: { publishedAt: Date.now() } });
-        }
-
+       
         let x = await blogModel.find({ _id: blogId }).select({ tags: 1 });
 
         let a = [];
@@ -90,7 +88,7 @@ const updateBlog = async function (req, res) {
 
         let updatedBlog = await blogModel.findOneAndUpdate(
           { _id: blogId },
-          { $set: { title: req.body.title, body: req.body.body } },
+          { $set: { title: req.body.title, body: req.body.body, isPublished:true, publishedAt: Date.now() } },
           { new: true, upsert: true }
         );
         return res.status(200).send({ msg: "Blog Updated Successfully", updatedBlog });
@@ -137,16 +135,41 @@ try{
    {
      return res.status(404).send({msg: "no blog found with the id match"})
    }
-    let deleted = await blogModel.updateMany({ $and:[data,{ isPublished: false }] },{isDeleted: true, deletedAt: Date.now()},{ new: true});
-
+  
+   let deleted = await blogModel.updateMany(data,{isDeleted: true, deletedAt: Date.now()},{ new: true});
     return res.status(200).send({ status: true, data: deleted });
   } catch (error) {
     return res.status(500).send({ error: error.message });
   }
 };
 
+//------------------------------------------------Solution 7 ------------------------------------------------------------------------
+
+
+const loginUser=async function(req,res){
+
+let email = req.body.email;
+let password = req.body.password;
+
+let match = await authorModel.findOne({email:email,password:password})
+if(!match){
+  res.status(400).send({msg: "Email/Password is incorrect"})
+}else{
+
+  let token = await jwt.sign({
+   authorId: match._id.toString(),
+   Project : "bloggingSite"
+  },
+  "project1-28"
+  );
+  res.send({ status: true, data: token });
+};
+}
+
+
 module.exports.createblog = createblog;
 module.exports.getdata = getdata;
 module.exports.updateBlog = updateBlog;
 module.exports.queryDeleted = queryDeleted;
 module.exports.deletedata = deletedata
+module.exports.loginUser = loginUser
