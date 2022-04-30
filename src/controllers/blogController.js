@@ -3,7 +3,23 @@ const blogModel = require("../models/blogModel");
 const authorModel = require("../models/authorModel");
 const jwt = require("jsonwebtoken");
 
-//------------------------------------------------Solution 2 ------------------------------------------------------------------------
+//------------------------------------------------Blog Validation------------------------------------------------------------------------
+
+const handleError= (err) =>{
+
+let errors = {title: '',body: '', category: ''}
+
+ if (err.message.includes('blog validation failed')){
+
+  Object.values(err.errors).forEach(({properties}) => {
+   errors[properties.path]= properties.message;
+  });
+
+  return errors;
+ }}
+
+
+//------------------------------------------------Create Blog------------------------------------------------------------------------
 
 const createblog = async function (req, res) {
 try{
@@ -20,11 +36,12 @@ try{
   let blogCreated = await blogModel.create(data);
   res.status(201).send({ data: blogCreated });
  } catch (error) {
-   return res.status(500).send({ error: error.message });
+  const errors = handleError(error)
+  res.send({errors})
  }
 };
 
-//------------------------------------------------Solution 3 ------------------------------------------------------------------------
+//------------------------------------------------Get Data------------------------------------------------------------------------
 
 const getdata = async function (req, res) {
 try{
@@ -47,13 +64,15 @@ try{
  }
 };
 
-//------------------------------------------------Solution 4 ------------------------------------------------------------------------
+//------------------------------------------------Update Blog------------------------------------------------------------------------
 
 const updateBlog = async function (req, res) {
   try {
 
     let data = req.body;
-
+    if (Object.keys(data)==0){
+      return res.status(400).send({status:false, msg:"No Update Changes Has Been Given"})
+    }
     let blogId = req.params.blogId;
 
     let id = await blogModel.findById(blogId);
@@ -115,7 +134,7 @@ const updateBlog = async function (req, res) {
   }
 };
 
-//------------------------------------------------Solution 5 ------------------------------------------------------------------------
+//------------------------------------------------Delete From Database------------------------------------------------------------------------
 
 const deletedata = async function(req,res){
 
@@ -136,7 +155,7 @@ try{
     }
  }
 
- //------------------------------------------------Solution 6 ------------------------------------------------------------------------
+ //------------------------------------------------Delete By Query ------------------------------------------------------------------------
 
  const queryDeleted = async function (req, res) {
   try {
@@ -153,7 +172,7 @@ try{
 };
 
 
-//------------------------------------------------Solution 7 ------------------------------------------------------------------------
+//------------------------------------------------Login User ------------------------------------------------------------------------
 
 
 const loginUser=async function(req,res){

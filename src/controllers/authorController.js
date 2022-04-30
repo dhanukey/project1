@@ -1,6 +1,26 @@
 const AuthorModel= require("../models/authorModel")
 
-//------------------------------------------------Solution 1 ------------------------------------------------------------------------
+//------------------------------------------------Author Validation ------------------------------------------------------------------------
+
+const handleError= (err) =>{
+
+let errors = { fname: '',lname: '', title: '', email:'',password:''}
+
+if(err.code ===11000){
+    errors.email =' the email is already registered'
+    return errors;
+  }
+
+if (err.message.includes('Author validation failed')){
+
+  Object.values(err.errors).forEach(({properties}) => {
+   errors[properties.path]= properties.message;
+  });
+
+return errors;
+}}
+
+//------------------------------------------------Create Author ------------------------------------------------------------------------
 
 const createAuthor= async function(req,res) {
 try{
@@ -10,8 +30,9 @@ try{
     res.status(201).send({ data: author })
   
 }catch (error) {
-        return res.status(500).send({ error: error.message });
-      }
+  const errors = handleError(error)
+  res.send({errors})
+  }
 }
 
 module.exports.createAuthor = createAuthor
