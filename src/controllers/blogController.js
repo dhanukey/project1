@@ -27,6 +27,9 @@ try{
   let data = req.body;
   
   let authorid = data.authorId;
+  // if ( Object.keys(data).length == 0){
+  //   return res.status(400).send({ msg: "please provide Author Id"})
+  //  }
   const find = await authorModel.find({ _id: authorid });
   
   if (find.length <= 0) {
@@ -37,7 +40,7 @@ try{
   res.status(201).send({ data: blogCreated });
  } catch (error) {
   const errors = handleError(error)
-  res.send({errors})
+  res.status(400).send({errors})
  }
 };
 
@@ -52,12 +55,12 @@ try{
   }
 
   let find = await blogModel.find({$and:[{ isDeleted: false },{ isPublished: true},data]});
-
-  if (find.length <= 0){
+  if (find.length <= 0){//empty array
     return res.status(404).send({ error: "No match found for the given criteria" });
   }
 
-  res.status(200).send({data: find});
+  let findWithAuthorDetails = await blogModel.find({$and:[{ isDeleted: false },{ isPublished: true},data]}).populate("authorId");
+  res.status(200).send({data: findWithAuthorDetails});
 
  }catch (error) {
    return res.status(500).send({ error: error.message });
@@ -79,43 +82,58 @@ const updateBlog = async function (req, res) {
     if (id) {
       if (id.isDeleted === false) {
        
-        let x = await blogModel.find({ _id: blogId }).select({ tags: 1 });
+        // let x = await blogModel.find({ _id: blogId }).select({ tags: 1 });
 
-        let a = [];
+        // let a = [];
         
-        for (let i = 0; i < x.length; i++) {
-          a.push(x[i].tags);
-        }
-        a.push(data.tags);
-        let b = a.flat()
+        // for (let i = 0; i < x.length; i++) {
+        //   a.push(x[i].tags);
+        // }
+        // a.push(data.tags);
+        // let b = a.flat()
        
+        // if (data.tags) {
+        //   let updatedBlog = await blogModel.findOneAndUpdate(
+        //     { _id: blogId },
+        //     { $set: { tags: b } },
+        //     { new: true, upsert: true }
+        //   );
+        // }
+
         if (data.tags) {
           let updatedBlog = await blogModel.findOneAndUpdate(
             { _id: blogId },
-            { $set: { tags: b } },
+            { $push: {tags:data.tags} },
             { new: true, upsert: true }
           );
         }
 
-        let y = await blogModel
-          .find({ _id: blogId })
-          .select({ subcategory: 1 });
+        // let y = await blogModel
+        //   .find({ _id: blogId })
+        //   .select({ subcategory: 1 });
 
-        let c = [];
-        for (let i = 0; i < y.length; i++) {
-          c.push(y[i].subcategory);
-        }
+        // let c = [];
+        // for (let i = 0; i < y.length; i++) {
+        //   c.push(y[i].subcategory);
+        // }
 
-        c.push(data.subcategory);
-        let d = c.flat();
+        // c.push(data.subcategory);
+        // let d = c.flat();
 
-        if (data.subcategory) {
-          let updatedBlog = await blogModel.findOneAndUpdate(
-            { _id: blogId },
-            { $set: { subcategory: d } },
-            { new: true, upsert: true }
-          );
-        }
+        // if (data.subcategory) {
+        //   let updatedBlog = await blogModel.findOneAndUpdate(
+        //     { _id: blogId },
+        //     { $set: { subcategory: d } },
+        //     { new: true, upsert: true }
+        //   );
+        // }
+         if (data.subcategory) {
+            let updatedBlog = await blogModel.findOneAndUpdate(
+              { _id: blogId },
+              { $push: { subcategory: data.subcategory } },
+              { new: true, upsert: true }
+            );
+          }
 
         let updatedBlog = await blogModel.findOneAndUpdate(
           { _id: blogId },

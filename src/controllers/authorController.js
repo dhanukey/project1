@@ -31,7 +31,7 @@ try{
   
 }catch (error) {
   const errors = handleError(error)
-  res.send({errors})
+  res.status(400).send({errors})
   }
 }
 
