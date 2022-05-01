@@ -17,9 +17,8 @@ const blogSchema = new mongoose.Schema(
 
     category: {
       type: [String],
-      validate: v => Array.isArray(v) && v.length > 0
-    },
-
+      validate:[v => Array.isArray(v) && v.length > 0,'Category should be present']
+  },
     subcategory: {
       type: [String],
     },

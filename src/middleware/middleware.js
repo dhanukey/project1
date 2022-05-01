@@ -12,7 +12,7 @@ let authentication = async function (req, res, next) {
     } else {
       let decodedToken = jwt.verify(token, "project1-28");
       if (!decodedToken) {
-        return res.send({ status: false, msg: "token is invalid" });
+        return res.status(403).send({ status: false, msg: "token is invalid" });
       }
       req.dataFromauthentication= decodedToken
       next();
@@ -34,7 +34,7 @@ let authorisation = async function (req, res, next) {
     if(blogid){
       let authorid = await blogModel.find({_id:blogid}).select({authorId:1})
       if(authorid.length<=0){
-        return res.status(403).send({status: false,msg: "Incorrect blogid"});
+        return res.status(404).send({status: false,msg: "Incorrect blogid"});
       }
       let userLoggedIn = decodedToken.authorId;
       if (authorid[0].authorId != userLoggedIn){

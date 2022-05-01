@@ -16,6 +16,8 @@ if (err.message.includes('Author validation failed')){
   Object.values(err.errors).forEach(({properties}) => {
    errors[properties.path]= properties.message;
   });
+  
+Object.keys(errors).forEach(k => (!errors[k] && errors[k] !== undefined) && delete errors[k]);
 
 return errors;
 }}

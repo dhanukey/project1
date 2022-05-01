@@ -15,6 +15,8 @@ let errors = {title: '',body: '', category: ''}
    errors[properties.path]= properties.message;
   });
 
+ Object.keys(errors).forEach(k => (!errors[k] && errors[k] !== undefined) && delete errors[k]);
+
   return errors;
  }}
 
@@ -27,9 +29,9 @@ try{
   let data = req.body;
   
   let authorid = data.authorId;
-  // if ( Object.keys(data).length == 0){
-  //   return res.status(400).send({ msg: "please provide Author Id"})
-  //  }
+  if (!authorid){
+    return res.status(400).send({ error: "please provide Author Id"})
+   }
   const find = await authorModel.find({ _id: authorid });
   
   if (find.length <= 0) {
@@ -55,7 +57,7 @@ try{
   }
 
   let find = await blogModel.find({$and:[{ isDeleted: false },{ isPublished: true},data]});
-  if (find.length <= 0){//empty array
+  if (find.length <= 0){
     return res.status(404).send({ error: "No match found for the given criteria" });
   }
 
@@ -77,7 +79,6 @@ const updateBlog = async function (req, res) {
       return res.status(400).send({status:false, msg:"No Update Changes Has Been Given"})
     }
     let blogId = req.params.blogId;
-
     let id = await blogModel.findById(blogId);
     if (id) {
       if (id.isDeleted === false) {
@@ -209,7 +210,7 @@ if(!match){
   },
   "project1-28"
   );
-  res.send({ status: true, data: token });
+  res.status(201).send({ status: true, data: token });
 };
 }
 
