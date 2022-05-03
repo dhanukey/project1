@@ -5,11 +5,13 @@ const authorSchema = new mongoose.Schema(
   {
     fname: {
       type: String,
-      required:[true, 'plese enter your first name buddy']
+      required:[true, 'plese enter your first name buddy'],
+      trim: true
     },
     lname: {
       type: String,
-      required: [true, 'Do not forget your last name bro']
+      required: [true, 'Do not forget your last name bro'],
+      trim: true
     },
 
     title: {

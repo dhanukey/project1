@@ -5,12 +5,15 @@ const blogSchema = new mongoose.Schema(
   {
     title: {
       type: String,
-      required: [true, 'title should be present']
+      required: [true, 'title should be present'],
+      trim: true
     },
 
     body: {
       type: String,
-      required: [true, 'body should have content']
+      required: [true, 'body should have content'],
+      trim: true
+
     },
 
     tags: [String],
